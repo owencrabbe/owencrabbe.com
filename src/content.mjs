@@ -5,6 +5,9 @@ if (parsedOrigin.protocol !== 'https:' || parsedOrigin.username || parsedOrigin.
   throw new Error('SITE_ORIGIN must be an HTTPS origin without a path, query, credentials, or trailing slash.');
 }
 
+const phronemePublicRevision = '18a8557c96787d5015c2280c188163dbf67cdba5';
+const phronemePublicSource = `https://github.com/owencrabbe/MindForge-Skills/blob/${phronemePublicRevision}`;
+
 export const site = {
   name: 'Owen Crabbe',
   origin: parsedOrigin.origin,
@@ -18,7 +21,44 @@ export const site = {
   auditor: 'https://github.com/owencrabbe/cividian-site-diligence-agent/blob/7956c302e55721489e35bcee8c9dbdb0d9471077/lib/diligence/audit.js#L110',
   evaluation: 'https://github.com/owencrabbe/cividian-site-diligence-agent/blob/7956c302e55721489e35bcee8c9dbdb0d9471077/docs/hackathon/EVAL_RESULTS.md',
   mindforge: 'https://github.com/owencrabbe/MindForge-Skills',
-  mindforgeSource: 'https://github.com/owencrabbe/MindForge-Skills/blob/b6e427c4434d449ba0548f4fcc477913921d933c/skills/deep-research/SKILL.md',
+  phroneme: 'https://www.phroneme.com/fitness',
+  fitnessLab: 'https://www.phroneme.com/fitness-lab/index.html',
+  mindforgeSource: `${phronemePublicSource}/README.md`,
+  phronemeContract: `${phronemePublicSource}/lib/evidence.mjs`,
+  phronemeCatalog: `${phronemePublicSource}/evidence/catalog.mjs`,
+  phronemePlanner: `${phronemePublicSource}/lib/planner.mjs`,
+  phronemeBrowser: `${phronemePublicSource}/app/main.mjs`,
+  phronemeEvidenceTests: `${phronemePublicSource}/tests/evidence.test.mjs`,
+  phronemePlannerTests: `${phronemePublicSource}/tests/planner.test.mjs`,
+  phronemeEvaluation: `${phronemePublicSource}/evidence/EVALUATION.md`,
+  phronemeSkill: `${phronemePublicSource}/skills/fitness-evidence/SKILL.md`,
+};
+
+export const phronemeProject = {
+  title: 'Phroneme',
+  description: 'A browser-local planning and reflection product, seven reusable Claude skills, and an open-source evidence contract with explicit limits.',
+  eyebrow: 'Case study / Working product · Open-source evidence contract',
+  intro: 'From reusable reasoning methods to a working activity journal—with inspectable evidence checks and a clear boundary around what the software can establish.',
+  summary: 'A browser-local activity journal, seven reusable Claude skills, and a tested evidence contract. Source relationships, review dates, and uncertainty stay visible.',
+  body: `
+  <section id="product"><h2>From a method to a working product.</h2>
+  <p>Phroneme connects a practical planning and reflection workflow with a small evidence library. The Fitness Lab lets a person choose activities and days, record completion, reflect on the week, and export or delete their journal.</p>
+  <p>The open-source toolkit grew from MindForge’s original six Claude methods: deep research, first principles, steelman/red-team, decision science, Socratic inquiry, and cross-domain transfer. Version 2 preserves those methods and adds a seventh <a href="${site.phronemeSkill}">fitness-evidence skill</a>, an executable evidence contract, and the portable Fitness Lab.</p>
+  <p>The full Phroneme product and reusable public toolkit are distinct artifacts. This case study links the working experience and the public implementation of its evidence and journal components.</p></section>
+  <section id="contract"><h2>A narrow contract you can inspect.</h2>
+  <p>The <a href="${site.phronemeCatalog}">reviewed library</a> contains three primary agency sources and five scoped paraphrases of general adult activity guidance. Source records carry attribution, a public URL, editorial review dates, status, and a declared relationship to each claim.</p>
+  <p>The <a href="${site.phronemeContract}">validator</a> rejects unknown claim IDs, unrelated citations, changed quantities or populations, missing review metadata, withdrawn sources, and overdue reviews. A review deadline is an editorial maintenance rule; passing that date does not mean the original guidance became false.</p>
+  <div class="callout"><span class="eyebrow">The contract</span><p>A reviewed wording match is a catalog result. It is not independent scientific verification or a personal recommendation.</p></div>
+  <p>The explorer uses complete curated statements and a small explicit phrase list, with normalization for presentation differences. It does not grade arbitrary paraphrases or call a model. Unknown wording returns <code>insufficient-evidence</code>: the small library cannot assess it, rather than declaring it false.</p></section>
+  <section id="workflow"><h2>Finish the loop in the browser.</h2>
+  <p>The <a href="${site.phronemePlanner}">planner</a> validates dates, scheduled activities, completion records, and saved data. Progress is the count of completed versus planned check-ins. The printable journal escapes user-entered text, and JSON export preserves the plan and reflection.</p>
+  <p>The <a href="${site.phronemeBrowser}">browser workflow</a> stores the journal locally, offers explicit export, and removes the saved browser copy when the user deletes the plan. The lab does not send journal content to a backend or model. A shared browser profile can still expose that local copy, and exported files remain under the user’s control.</p>
+  <p>The useful engineering boundary is concrete: the software can record a plan and what the user checked off. Those records do not establish improved adherence, fitness, or health.</p></section>
+  <section id="evaluation"><h2>Test the contract. Evaluate the method separately.</h2>
+  <p>The public version has 54 passing software tests: <a href="${site.phronemeEvidenceTests}">48 evidence checks and development fixtures</a>, plus <a href="${site.phronemePlannerTests}">six planner tests</a>. They cover altered numbers and populations, unsupported source relationships, invalid review dates, hostile text, malformed storage, calendar boundaries, completion integrity, and export escaping.</p>
+  <p>Those tests establish behavior for the declared software cases. A controlled model comparison has not been run. The <a href="${site.phronemeEvaluation}">proposed evaluation protocol</a> compares a fixed model with no method, a neutral checklist, and the fitness-evidence skill under identical source packets, with blinded human review.</p>
+  <p>The next research question is whether the method improves source support and uncertainty communication on held-out tasks. That question is separate from product usability and from any health outcome.</p>
+  <p>Implementation and scope are documented in <a href="${site.mindforgeSource}">the public version 2 README</a>. The reusable toolkit is MIT licensed. This is a self-published account of a working product and its open-source contract.</p></section>`,
 };
 
 export const research = [

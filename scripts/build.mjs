@@ -6,7 +6,7 @@ import { site, notes } from '../src/content.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
-const updated = '2026-09-29';
+const updated = '2026-09-30';
 const xml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&apos;'}[c]));
 
 await rm(output, { recursive: true, force: true });

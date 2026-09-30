@@ -48,12 +48,12 @@ Add a route in `src/templates.mjs`, then build and check. Sitemap entries are ge
 
 ## Editorial boundaries
 
-The site uses only public evidence for the Cividian Site Diligence Agent and MindForge Skills repositories. Evidence URLs are pinned to reviewed revisions so a reader can inspect the specific artifact supporting a statement.
+The site uses public evidence for the Cividian Site Diligence Agent and Phroneme projects. Phroneme's reusable toolkit retains the MindForge-Skills repository name. Evidence URLs are pinned to reviewed revisions so a reader can inspect the specific artifact supporting a statement.
 
 - Engineering notes are self-published analysis, not peer-reviewed papers.
 - The Cividian report contains scripted cases; it is not a live factual-accuracy benchmark.
 - Citation and numeric checks do not establish semantic entailment or legal applicability.
-- MindForge is methodology tooling; measured reasoning gains are not claimed.
+- Phroneme's journal and evidence contract have software tests; controlled reasoning improvements and health outcomes have not been established.
 - Proposed research remains labeled proposed until datasets, methods, and results are actually published.
 - AI-assisted workflows are disclosed in the About section.
 - No invented employment, degree, personal implementation breakdown, award, adoption metric, or performance score is included.
