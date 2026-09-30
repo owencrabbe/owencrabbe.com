@@ -1,4 +1,4 @@
-const configuredOrigin = process.env.SITE_ORIGIN ?? 'https://owencrabbe-portfolio.vercel.app';
+const configuredOrigin = process.env.SITE_ORIGIN ?? 'https://owencrabbe.com';
 let parsedOrigin;
 try { parsedOrigin = new URL(configuredOrigin); } catch { throw new Error('SITE_ORIGIN must be an absolute HTTPS origin.'); }
 if (parsedOrigin.protocol !== 'https:' || parsedOrigin.username || parsedOrigin.password || parsedOrigin.search || parsedOrigin.hash || parsedOrigin.pathname !== '/' || configuredOrigin.endsWith('/')) {

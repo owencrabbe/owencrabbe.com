@@ -18,16 +18,16 @@ The preview serves `dist/` at `http://127.0.0.1:4319`. Set `PORT` or `HOST` to c
 
 Import the GitHub repository. Framework preset: Other. Build command: `npm run build`. Output directory: `dist`. Runtime: Node.js 24. These settings are also present in `vercel.json` and `package.json`.
 
-`SITE_ORIGIN` controls every canonical URL, Open Graph URL, feed link, and sitemap entry. It must be an HTTPS origin without a path or trailing slash. The default is the initial publication domain:
-
-```sh
-SITE_ORIGIN=https://owencrabbe-portfolio.vercel.app npm run build
-```
-
-When `owencrabbe.com` serves this portfolio, set the production environment variable to the custom domain and rebuild:
+`SITE_ORIGIN` controls every canonical URL, Open Graph URL, feed link, and sitemap entry. It must be an HTTPS origin without a path or trailing slash. The default is the connected custom domain:
 
 ```sh
 SITE_ORIGIN=https://owencrabbe.com npm run build
+```
+
+To generate a standalone preview with a different origin, override it when building:
+
+```sh
+SITE_ORIGIN=https://owencrabbe-portfolio.vercel.app npm run build
 ```
 
 DNS hosting and domain registration are separate from this site. Pointing a website to Vercel does not require transferring registration. Preserve existing mail-related DNS records when changing web records. This project does not modify DNS or email.
