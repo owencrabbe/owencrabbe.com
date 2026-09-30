@@ -1,0 +1,13 @@
+{
+  "name": "owencrabbe-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Owen Crabbe's applied AI portfolio and engineering notebook.",
+  "engines": { "node": "24.x" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "start": "node scripts/serve.mjs"
+  }
+}
