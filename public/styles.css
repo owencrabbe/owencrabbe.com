@@ -387,7 +387,7 @@ em { font-weight: inherit; }
   .project-copy { padding: 30px 26px 32px; }
   .project-copy > .eyebrow { margin-bottom: 27px; font-size: 8px; }
   .project-copy h3 { font-size: 51px; max-width: 400px; }
-  .project-copy h3 span { margin-left: 20px; font-size: 26px; }
+  .project-copy h3 span { display: none; }
   .project-copy > p:not(.eyebrow) { font-size: 12px; max-width: 405px; }
   .project-tags { margin-block: 23px 29px; }
   .project-links { gap: 26px; }
@@ -508,7 +508,7 @@ em { font-weight: inherit; }
 @media print {
   body { background: white; font-size: 11pt; color: black; }
   .shell { width: 100%; }
-  .site-header, .site-footer, .article-sidebar, .back-link, .article-header-links, .article-end, .inspector, .hero-actions, .hero-disciplines, .hero-bottom, .project-visual, .secondary-icon, .contact-section { display: none; }
+  .skip-link, .site-header, .site-footer, .article-sidebar, .back-link, .article-header-links, .article-end, .inspector, .hero-actions, .hero-disciplines, .hero-bottom, .project-visual, .secondary-icon, .contact-section { display: none; }
   .hero, .featured-project, .research-inner, .about-section, .article-layout, .research-page-layout { display: block; }
   .hero, .work-section, .writing-section, .research-inner, .about-section, .article-heading, .article-layout { padding: 0 0 24pt; }
   .hero h1, .article-heading h1 { font-size: 42pt; }
