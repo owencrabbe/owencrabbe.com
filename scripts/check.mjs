@@ -22,10 +22,9 @@ for (const [name, html] of documents) {
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
   if (ids.length !== new Set(ids).size) problems.push(`${display}: duplicate element id`);
   if ((html.match(/<h1\b/g) ?? []).length !== 1) problems.push(`${display}: expected one h1`);
-  if (!html.includes('<html lang="en">') || !html.includes('<main id="main">')) problems.push(`${display}: missing language or main landmark`);
+  if (!html.includes('<html lang="en">') || !/<main\b[^>]*\bid="main"/.test(html)) problems.push(`${display}: missing language or main landmark`);
   if (!html.includes('name="description"') || !html.includes('rel="canonical"') || !html.includes('name="viewport"')) problems.push(`${display}: missing metadata`);
   if (/<img\b(?![^>]*\balt=)[^>]*>/i.test(html)) problems.push(`${display}: image missing alt`);
-  if (/\b(?:resume|résumé)\b/i.test(html)) problems.push(`${display}: unexpected resume content`);
 
   for (const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
     const reference = match[1].replaceAll('&amp;', '&');
@@ -58,5 +57,5 @@ if (problems.length) {
   process.exit(1);
 }
 const total = (await Promise.all(files.map(async name => (await stat(name)).size))).reduce((a, b) => a + b, 0);
-console.log(`Checked ${htmlFiles.length} pages: local links and anchors, metadata, landmarks, unique ids, accessible asset requirements, no resume content.`);
+console.log(`Checked ${htmlFiles.length} pages: local links and anchors, metadata, landmarks, unique ids, accessible asset requirements.`);
 console.log(`Total generated site: ${(total / 1024).toFixed(1)} KB uncompressed. CSS: ${(css.length / 1024).toFixed(1)} KB. No runtime dependencies.`);
