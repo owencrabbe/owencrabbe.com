@@ -444,30 +444,6 @@ em { font-weight: inherit; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
-@media print {
-  body { background: white; font-size: 11pt; color: black; }
-  .shell { width: 100%; }
-  .skip-link, .site-header, .site-footer, .article-sidebar, .back-link, .article-header-links, .article-end, .hero-actions, .hero-disciplines, .hero-bottom, .project-visual, .contact-section { display: none; }
-  .hero, .featured-project, .research-inner, .about-section, .article-layout, .research-page-layout { display: block; }
-  .hero, .work-section, .writing-section, .research-inner, .about-section, .article-heading, .article-layout { padding: 0 0 24pt; }
-  .hero h1, .article-heading h1 { font-size: 42pt; }
-  .hero h1 br { display: none; }
-  .hero h1 br::after { content: ' '; }
-  h2, h3 { break-after: avoid; }
-  .featured-project, .note-card, .research-section, .method-grid > div, .callout { background: white; border: 1px solid #aaa; color: black; box-shadow: none; }
-  .featured-project { margin-top: 16pt; }
-  .project-copy { padding: 16pt; }
-  .notes-grid { gap: 12pt; }
-  .article-body p, .article-body li, .project-copy > p:not(.eyebrow), .project-copy > .eyebrow, .project-links a { color: black; }
-  .article-body { font-size: 11pt; line-height: 1.6; }
-  .article-body h2 { font-size: 22pt; }
-  .article-body section { margin-bottom: 20pt; }
-  .callout, .comparison, .article-flow, .method-grid { break-inside: avoid; }
-  .article-body a { color: black; text-decoration: underline; }
-  .research-page-aside { margin-bottom: 24pt; }
-  .study { max-width: none; }
-}
-
 /* Professional record: projects and publication status take precedence. */
 .hero { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 64px; padding-block: 64px 54px; }
 .hero h1 { font-size: clamp(64px, 6.8vw, 96px); line-height: 1.02; letter-spacing: -.055em; }
@@ -619,8 +595,73 @@ em { font-weight: inherit; }
 }
 
 @media print {
+  body { background: white; font-size: 11pt; color: black; }
+  .shell { width: 100%; }
+  .skip-link, .site-header, .article-sidebar, .back-link, .article-header-links, .article-end, .hero-actions, .hero-disciplines, .hero-bottom, .project-visual { display: none; }
+  .hero, .featured-project, .research-inner, .about-section, .article-layout, .research-page-layout { display: block; }
+  .hero, .work-section, .writing-section, .research-inner, .about-section, .article-heading, .article-layout { padding: 0 0 24pt; }
+  .hero h1, .article-heading h1 { font-size: 42pt; }
+  .hero h1 br { display: none; }
+  h2, h3 { break-after: avoid; }
+  .featured-project, .note-card, .research-section, .method-grid > div, .callout { background: white; border: 1px solid #aaa; color: black; box-shadow: none; }
+  .featured-project { margin-top: 16pt; }
+  .project-copy { padding: 16pt; }
+  .notes-grid { gap: 12pt; }
+  .article-body p, .article-body li, .project-copy > p:not(.eyebrow), .project-copy > .eyebrow, .project-links a { color: black; }
+  .article-body { font-size: 11pt; line-height: 1.6; }
+  .article-body h2 { font-size: 22pt; }
+  .article-body section { margin-bottom: 20pt; }
+  .callout, .comparison, .article-flow, .method-grid { break-inside: avoid; }
+  .article-body a { color: black; text-decoration: underline; }
+  .research-page-aside { margin-bottom: 24pt; }
+  .study { max-width: none; }
+}
+
+
+@media print {
   .work-index, .phroneme-mark, .writing-follow, .project-standard { display: none; }
   .phroneme-project { display: block; background: white; padding: 16pt; color: black; }
   .project-copy > p:not(.eyebrow), .phroneme-copy > p:not(.eyebrow), .phroneme-copy .project-links a { color: black; }
-  .hero h1 { font-size: 42pt; }
+  .hero h1 { font-size: 36pt; }
+  .hero-copy > .eyebrow { max-width: none; margin-bottom: 12pt; }
+  .hero-description, .project-copy > p:not(.eyebrow) { max-width: none; }
+  .section-heading h2 { max-width: none; }
+  .section-heading { margin-bottom: 14pt; }
+  .hero h1 em { color: black; }
+  .hero-description, .publication-context, .section-aside, .research-intro > p:not(.eyebrow), .research-list p, .about-copy > p, .contact-description { color: #222; font-size: 11pt; }
+  .project-copy .project-kicker, .project-copy .project-tags span { color: #222; border-color: #777; }
+  .project-copy .project-links a, .project-copy .project-links .project-main-link { color: black; border-color: #777; }
+  .project-copy h3, .phroneme-copy h3 { font-size: 28pt; }
+  .project-copy > p:not(.eyebrow), .phroneme-copy > p:not(.eyebrow) { font-size: 11pt; }
+  .project-copy > .project-evidence, .phroneme-copy > .project-evidence { font-size: 10pt; }
+  .project-links a { min-height: 0; font-size: 10pt; }
+  .project-copy, .phroneme-project { padding: 12pt; }
+  .note-card, .featured-project, .phroneme-project { break-inside: avoid; }
+  .section-heading h2, .about-copy h2, .research-intro h2 { font-size: 27pt; }
+  .notes-grid { grid-template-columns: 1fr 1fr; }
+  .note-card { padding: 12pt; }
+  .note-card h3 { font-size: 22pt; }
+  .note-card > p:not(.eyebrow) { font-size: 11pt; }
+  .research-inner, .about-section { padding: 16pt; }
+  .about-monogram { display: none; }
+  .contact-section { display: block; padding: 16pt 0; }
+  .contact-section h2 { font-size: 24pt; }
+  .contact-actions { margin-top: 10pt; gap: 4pt; }
+  .contact-actions .button, .contact-note { display: none; }
+  .contact-email { color: black; font-size: 12pt; }
+  .site-footer { display: block; padding-bottom: 0; }
+  .footer-inner { flex-wrap: wrap; padding-top: 10pt; }
+  .footer-inner a { min-height: 0; color: black; }
+  .research-intro, .about-section, .contact-section { break-inside: avoid; }
+  .research-intro h2 br, .about-copy h2 br { display: none; }
+  .research-intro > p:not(.eyebrow), .research-list p { max-width: none; }
+  .research-intro .eyebrow { margin-bottom: 10pt; }
+  .research-intro h2 { margin-bottom: 12pt; }
+  .research-intro .text-link { min-height: 0; }
+  .agenda-note { margin-top: 8pt; }
+  .research-list { margin-top: 12pt; }
+  .research-list li { grid-template-columns: 22px minmax(0, 1fr) auto; padding-block: 10pt; break-inside: avoid; }
+  .research-list .research-state { grid-column: auto; }
+  .research-list h3 { font-size: 18pt; }
+  .about-label .eyebrow { margin-bottom: 10pt; }
 }
