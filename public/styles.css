@@ -665,3 +665,28 @@ em { font-weight: inherit; }
   .research-list h3 { font-size: 18pt; }
   .about-label .eyebrow { margin-bottom: 10pt; }
 }
+
+.report-card { padding: 30px; border: 1px solid var(--line); margin-bottom: 24px; background: var(--white); }
+.report-card .eyebrow { color: var(--muted); }
+.report-card h3 { font: 34px/1.15 var(--serif); letter-spacing: -.03em; max-width: 900px; }
+.report-card h3 a { text-decoration: none; }
+.report-card h3 a:hover { color: var(--blue); }
+.report-card > p:not(.eyebrow) { font-size: 15px; max-width: 850px; color: var(--muted); }
+.report-card .text-link { min-height: 44px; }
+.methods-report { min-width: 0; overflow-wrap: anywhere; }
+.report-release-note { font-size: 15px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.report-table-scroll { overflow-x: auto; margin-block: 25px; }
+.report-table-scroll:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+.methods-report table { border-collapse: collapse; min-width: 580px; width: 100%; font-size: 13px; line-height: 1.6; }
+.methods-report th, .methods-report td { border: 1px solid var(--line); text-align: left; padding: 10px 12px; vertical-align: top; }
+.methods-report th { background: #e9eddf; font-weight: 500; }
+.methods-report h2 { margin-top: 38px; }
+@media (max-width: 700px) { .report-card { padding: 24px; } .report-card h3 { font-size: 30px; } }
+@media print {
+  .report-card { background: white; padding: 12pt; break-inside: avoid; }
+  .report-card h3 { font-size: 22pt; }
+  .report-card > p:not(.eyebrow) { color: black; font-size: 11pt; }
+  .report-table-scroll { overflow: visible; }
+  .methods-report table { min-width: 0; font-size: 9pt; }
+  .methods-report th, .methods-report td { padding: 6pt; overflow-wrap: anywhere; }
+}
