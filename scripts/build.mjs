@@ -23,6 +23,7 @@ await Promise.all([
   copyFile(path.join(root, 'public/styles.css'), path.join(output, 'assets/styles.css')),
   copyFile(path.join(root, 'public/main.js'), path.join(output, 'assets/main.js')),
   copyFile(path.join(root, 'public/favicon.svg'), path.join(output, 'favicon.svg')),
+  cp(path.join(root, 'public/images'), path.join(output, 'assets'), { recursive: true }),
 ]);
 
 await cp(path.join(root, 'public/reports'), path.join(output, 'reports'), { recursive: true });
