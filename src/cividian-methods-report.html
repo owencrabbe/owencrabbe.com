@@ -1,0 +1,215 @@
+<h2 id="abstract">Abstract</h2>
+<p>Property research combines spatial records, administrative documents, contextual statistics, and user assumptions whose authority and applicability differ. A fluent synthesis can obscure those differences, particularly when a city statistic becomes a parcel claim or an ordinance excerpt becomes a zoning determination. This paper describes the public Cividian Site Diligence Agent as a systems implementation for retaining evidence boundaries during site research. The pipeline represents observations, calculations, assumptions, and proposed actions separately; preserves source and temporal metadata; computes scenarios deterministically; constrains generated findings to an identifier-addressed evidence packet; and exposes unavailable evidence and failed validation. An optional model auditor assesses accepted findings against their cited rows. The contribution is an inspectable, domain-specific composition of established retrieval, provenance, and abstention ideas, together with an evaluation protocol that separates citation validity from semantic support and useful coverage. The pinned public repository reports 16 scripted cases comprising 64 passing checks. These checks exercise software behavior and do not establish model accuracy, robustness in deployment, or improved investment decisions. No independently adjudicated live benchmark outcomes are reported. A prospective paired evaluation specifies frozen evidence, jurisdiction-separated development and test sets, claim-level adjudication, ablations, failure accounting, and reproducibility artifacts. Important residual risks include retrieval error, scope leakage, incomplete temporal metadata, auditor error, and excessive abstention.</p>
+<p>Keywords: site diligence; evidence provenance; retrieval augmented generation; abstention; research software; evaluation protocol</p>
+<h2 id="1-introduction">1 Introduction</h2>
+<p>A site research question is rarely answered by a single trustworthy datum. An address may resolve to a point that does not identify the intended parcel. A parcel polygon may contain that point without establishing ownership or a surveyed boundary. An adopted ordinance may contain a relevant district description without establishing that the district governs the site. Citywide demographics may provide useful context without describing a building’s occupants or a parcel’s demand. Development scenarios add another distinction: arithmetic can be correct while its rent, cost, or dimensional assumptions remain unverified.</p>
+<p>These differences motivate an evidence-bounded system. Here, “evidence bounded” describes a design objective: the system should make the basis, scope, limitations, and missing prerequisites of a claim inspectable. It does not mean that every delivered sentence is guaranteed true. A traceable error remains an error, and a correct citation identifier does not establish entailment.</p>
+<p>Cividian Site Diligence implements this objective through typed records, deterministic calculations, constrained generation, validation, and an investigation plan. This manuscript concerns only the Apache-2.0 public edition, version 0.5.0 at commit 7956c302e55721489e35bcee8c9dbdb0d9471077, inspected on 1 October 2026 [1]. The larger proprietary Cividian product is outside the reproducibility boundary. Public code availability neither grants access to the proprietary core nor establishes rights to redistribute every upstream data source.</p>
+<p>The paper makes three bounded contributions. First, it documents a working integration of spatial and temporal evidence distinctions in a site-research pipeline. Second, it examines what the public software checks actually establish, including gaps between structural validation and semantic support. Third, it specifies a prospective evaluation that can test whether those mechanisms improve supported coverage without hiding failures behind abstention. It claims no new foundation model, retrieval algorithm, statistical calibration guarantee, or demonstrated financial benefit.</p>
+<h2 id="2-related-work-and-contribution-boundary">2 Related work and contribution boundary</h2>
+<p>Retrieval-augmented generation combines generation with external information rather than relying exclusively on model parameters [2]. Cividian follows the broader retrieval-grounded approach, but its public implementation is an orchestration of provider records and document excerpts rather than a reproduction of the jointly trained retriever–generator architecture in Lewis et al. Citation-bearing generation also predates this system. ALCE explicitly evaluates correctness and citation quality [3]; a syntactically valid citation is therefore an inadequate sole outcome measure. FActScore motivates decomposing long outputs into atomic factual claims rather than assigning one undifferentiated correctness label [4].</p>
+<p>Abstention has an established risk–coverage interpretation in selective prediction [5]. More recent RAG work, including Divide-Then-Align, studies when a system should withhold answers that exceed available knowledge [6]. Cividian’s null values and rule-based refusal states do not implement a learned rejector with a calibrated risk bound. The proposed evaluation borrows the requirement to report coverage alongside error, without implying that classification guarantees automatically transfer to open-ended site research. Semantic entropy offers a different approach to detecting a subset of hallucinations through uncertainty over meanings [7]; the public system does not implement that method or report calibrated uncertainty probabilities.</p>
+<p>Provenance is likewise established. W3C PROV-DM models entities, activities, derivation, agents, and time [8]. Cividian’s record metadata is compatible with the motivation for provenance, but this paper does not claim PROV conformance or a standards-compliant export. FAIR principles motivate persistent identification and reusable research objects [9]; a Git commit and content hash are useful components, not a complete FAIR assessment.</p>
+<p>Recent systems further narrow any novelty claim. Citation-Enforced RAG for Fiscal Document Intelligence describes source-first ingestion, provenance, citation enforcement, and abstention [10]. CiteGuard-RAG describes runtime citation and grounding validation with refusal or regeneration [11]. Both are cited here as 2026 preprints, not as established independent validation of Cividian. The contribution of the present work is the inspectable site-research implementation and its evaluation design, particularly the separation of spatial applicability, temporal lineage, scenario assumptions, and unresolved investigation tasks. This is a focused related-work comparison, not an exhaustive systematic review or a claim of priority.</p>
+<h2 id="3-public-system-and-evidence-contract">3 Public system and evidence contract</h2>
+<h3 id="3-1-input-and-site-identity">3.1 Input and site identity</h3>
+<p>The public workflow accepts an address or map point, a development objective, and explicitly labeled assumptions. Supported objectives include residential infill, mixed use, and adaptive reuse. Site resolution distinguishes a city centroid from a site and records the strength of the parcel match. Provider-polygon containment is a geometric relation, not proof of title, buildability, or boundary accuracy. An address-matched or nearest candidate requires a different interpretation from a containing polygon [1].</p>
+<p>The distinction is operationally important. If a proposed project spans multiple parcels, a single point may identify only one component. Geocoding confidence cannot repair missing assemblage information. These conditions should create explicit unresolved questions rather than an apparently precise aggregate development envelope.</p>
+<h3 id="3-2-typed-evidence-and-temporal-lineage">3.2 Typed evidence and temporal lineage</h3>
+<p>The evidence record distinguishes source observations, deterministic calculations, user assumptions, model interpretations, and proposed actions. Each record has an identifier, value and units where applicable, source metadata, geographic scope, applicability, retrieval time, vintage or publication fields, extraction method, and a status such as available, unavailable, stale, conflicting, or unverified. An unknown value remains null with an explanation rather than being converted to zero [1].</p>
+<p>Table 1. Evidence distinctions and the errors they are intended to expose</p>
+<div class="report-table-scroll" role="region" aria-label="Evidence distinctions table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Distinction</th>
+<th scope="col">Public representation</th>
+<th scope="col">Interpretation boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Source versus assumption</td>
+<td>Record kind and input basis</td>
+<td>A user estimate does not become an observed fact</td>
+</tr>
+<tr>
+<td>Site versus context</td>
+<td>Scope and applicability</td>
+<td>A city or county statistic does not establish a parcel condition</td>
+</tr>
+<tr>
+<td>Retrieval versus vintage</td>
+<td>Retrieval time and source vintage</td>
+<td>A recent fetch does not make historical data current</td>
+</tr>
+<tr>
+<td>Missing versus zero</td>
+<td>Null and unavailable reason</td>
+<td>Absence of a value does not establish absence of a condition</td>
+</tr>
+<tr>
+<td>Conflict versus consensus</td>
+<td>Conflicting records and linked question</td>
+<td>Divergent measurements remain visible</td>
+</tr>
+<tr>
+<td>Quotation versus applicability</td>
+<td>Unverified ordinance rows</td>
+<td>A valid quotation does not assign the site’s zoning district</td>
+</tr>
+</tbody></table></div>
+<p>Temporal lineage is intentionally incomplete where the source is incomplete. Publication time may be null; an ordinance’s effective date is not necessarily its retrieval date; an API may update without a stable revision identifier. The manuscript therefore treats temporal metadata as evidence to inspect, not proof of legal currency. A future benchmark should separately label retrieval time, observation period, publication time, and effective date where available.</p>
+<h3 id="3-3-deterministic-scenarios-and-missing-inputs">3.3 Deterministic scenarios and missing inputs</h3>
+<p>Scenario calculations reuse the public finance runtime and retain whether inputs came from records, explicit user assumptions, or defaults. The documented readiness states distinguish unavailable geometric prerequisites from incomplete financial inputs and a fully computed screening scenario. “Screenable” describes computational completeness under labeled inputs, not suitability for investment. A known cost subtotal must not silently stand in for total development cost. If a required quantity is unknown, the dependent output remains null [1].</p>
+<p>An illustrative example clarifies the boundary. Suppose a synthetic record states an existing building area of 8,000 square feet while a user proposes 10,000 square feet. The two values have different origins. The system should preserve their disagreement, identify the calculation basis, and ask for a measured floor-area verification. This example is a constructed explanation of the method, not a live property result or an observed model answer.</p>
+<h3 id="3-4-bounded-generation-and-structural-validation">3.4 Bounded generation and structural validation</h3>
+<p>The packet builder serializes identifiers, evidence summaries, assumptions, scenarios, conflicts, unknowns, and available investigation questions. It hashes the serialized packet and applies a 48,000-byte limit in the pinned implementation. Summaries may be shortened before a packet is rejected for exceeding the limit. The full evidence record and the model packet are consequently different artifacts: source URLs and complete retrieval metadata live in the evidence record, while the model sees a reduced representation. A packet hash establishes identity of those bytes; it does not authenticate the underlying sources [1].</p>
+<p>The reasoning schema separates supported findings, scenario comparisons, decisive unknowns, conflicts, an investigation plan, sensitivity statements, and limitations. Deterministic validation checks allowed identifiers, field structure, forbidden output forms, and numerical consistency. Certain item failures remove only that item; hard failures, such as prohibited verdict language or links, reject the reasoning output. A deterministic brief and baseline investigation plan can remain available when inference fails.</p>
+<p>Several qualifications follow directly from the code. First, numerical matching includes tolerance rules and exemptions for small integer counts; it is not a dimensional analysis or a truth test. Second, a supported finding may cite stale or conflicting rows as well as available rows. Third, the executive assessment and some other fields use packet-wide numerical checks rather than the same item-level evidence links used for supported findings. Fourth, the scope label is selected from the narrowest cited scope. Adding a parcel citation to a sentence containing a city-level claim can therefore require clause-level review. A scope label alone does not prove the geographic validity of every clause. These are evaluation targets, not claims that the public implementation has already solved them.</p>
+<h3 id="3-5-ordinance-reading-and-finding-audit">3.5 Ordinance reading and finding audit</h3>
+<p>The zoning stage searches for official ordinance sources, extracts text, requests structured quotations, and retains quotations only when they match the fetched text under the implemented normalization and validation rules. Retained rows remain unverified jurisdictional context. They are not admitted as supported parcel-zoning findings. The intended next step is confirmation of the district and applicable provisions with the planning authority [1]. Successful quotation extraction cannot establish that the ordinance is complete, current, applicable, or free of exceptions; scanned maps and image-only material remain a coverage limitation.</p>
+<p>The optional auditor receives a finding and its cited rows. It can remove an unsupported finding or mark exact unsupported spans in a partially supported finding. It cannot create new findings or citations. An unavailable or malformed audit is surfaced as unavailable, rather than being counted as a successful audit. In that condition, a finding may still be delivered with the unavailable status. This preserves usability but leaves residual risk. The auditor is another model, not an independent source of ground truth, and shared model-family errors may survive both stages.</p>
+<h2 id="4-available-software-validation-evidence">4 Available software validation evidence</h2>
+<p>The public evaluation report was generated on 29 September 2026 at 20:48:18 UTC by the repository’s scripted evaluation runner [12]. It lists 16 cases and 64 checks, all marked passing. Table 2 transcribes their counts. Inputs are scripted or synthetic, except that zoning cases incorporate real ordinance text inside constructed provider responses; the model stage is a deterministic fixture or scripted answer. This manuscript inspected the published report and relevant source code. It did not independently rerun the suite or conduct paid inference.</p>
+<p>Table 2. Repository reported scripted checks at the pinned revision</p>
+<div class="report-table-scroll" role="region" aria-label="Scripted software validation table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Case</th>
+<th scope="col">Checks passing</th>
+<th scope="col">Case</th>
+<th scope="col">Checks passing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Complete evidence</td>
+<td>7 of 7</td>
+<td>City versus site scope</td>
+<td>2 of 2</td>
+</tr>
+<tr>
+<td>Sparse evidence</td>
+<td>6 of 6</td>
+<td>Ordinance read</td>
+<td>6 of 6</td>
+</tr>
+<tr>
+<td>Stale evidence</td>
+<td>3 of 3</td>
+<td>Ordinance injection</td>
+<td>4 of 4</td>
+</tr>
+<tr>
+<td>Conflicting sources</td>
+<td>3 of 3</td>
+<td>Missing zoning key</td>
+<td>4 of 4</td>
+</tr>
+<tr>
+<td>Unsupported assumption</td>
+<td>3 of 3</td>
+<td>Overstated finding audit</td>
+<td>5 of 5</td>
+</tr>
+<tr>
+<td>Prompt injection</td>
+<td>4 of 4</td>
+<td>Partial support audit</td>
+<td>3 of 3</td>
+</tr>
+<tr>
+<td>Incorrect citations</td>
+<td>5 of 5</td>
+<td>Malformed audit</td>
+<td>2 of 2</td>
+</tr>
+<tr>
+<td>Provider unavailable</td>
+<td>4 of 4</td>
+<td>Unavailable auditor</td>
+<td>3 of 3</td>
+</tr>
+</tbody></table></div>
+<p>The counts establish that the reported scripted assertions passed under their constructed conditions. They are not 64 independent observations of model quality. They provide no estimate of unsupported-claim prevalence, legal correctness, adversarial robustness, user benefit, or latency in operational use. Passing an injection fixture does not establish general resistance to prompt injection.</p>
+<p>The public repository also contains a live-evaluation runner. Its numeric-overlap metric is explicitly a proxy: matching a number somewhere in a packet does not verify units, scope, or entailment. Its conditions can gather evidence separately, and the full pipeline may obtain additional ordinance evidence. Those differences confound a direct causal estimate of the validator or auditor alone. This paper therefore reports no live model-quality outcomes and proposes a frozen-input experiment to isolate mechanisms. Documentation references to separate live receipts are not substituted for an independently adjudicated benchmark.</p>
+<h2 id="5-prospective-evaluation-protocol">5 Prospective evaluation protocol</h2>
+<h3 id="5-1-questions-and-study-status">5.1 Questions and study status</h3>
+<p>This protocol is proposed, not preregistered, executed, or statistically powered. The first question is whether validation and auditing reduce unsupported factual content relative to generation from the same evidence. The second is whether the system preserves answerable coverage and produces appropriate abstention when evidence is insufficient. The third concerns spatial and temporal errors that citation membership cannot detect. The fourth asks whether the investigation plan identifies specific, source-directed actions that address consequential uncertainty. No hypothesis concerns property returns or completed development outcomes.</p>
+<h3 id="5-2-sampling-and-reference-packets">5.2 Sampling and reference packets</h3>
+<p>A feasible initial design contains 60 sites from six Indiana jurisdictions. Twelve development sites, drawn from two jurisdictions, are used to refine instructions, labels, and software. Forty-eight test sites, drawn from four different jurisdictions, are held out until the design is frozen. Within each test jurisdiction, two sites are purposively selected for each of six dominant conditions: relatively complete evidence, sparse evidence, stale evidence, conflicting evidence, ambiguous site identity, and unavailable or image-only zoning material. Overlapping conditions are retained as secondary tags rather than suppressed.</p>
+<p>This is a balanced challenge sample, not a probability sample of Indiana properties. The numbers are a proposed feasibility target, not a power calculation. Site eligibility, replacements, exclusions, search dates, and selection decisions must be logged before outputs are scored. No person’s protected characteristics, household finances, or inferred vulnerability should be used to select sites. Public commercial or civic locations should be preferred where they adequately exercise the workflow.</p>
+<p>For each site, reviewers assemble an immutable reference packet from permitted sources and record URLs, content hashes, retrieval time, geographic scope, units, vintage, available effective dates, and reuse restrictions. A reference answer records what these materials can support and what remains unresolved. This is source-grounded adjudication, not licensed title work, a survey, an environmental assessment, or authoritative zoning certification. If a source cannot lawfully be redistributed, the release should contain permitted metadata, retrieval instructions, and a clear replay limitation rather than an unauthorized copy.</p>
+<h3 id="5-3-tasks-and-paired-conditions">5.3 Tasks and paired conditions</h3>
+<p>Six fixed questions are scored for every site: whether the intended parcel is resolved; what area or existing-building facts are supported; what can be said about zoning and what needs confirmation; which contextual statistics apply only at broader geographies; which scenario outputs follow from explicit inputs; and which investigation step would resolve the most consequential remaining uncertainty. A question may contain several atomic factual obligations. Reviewers label their answerability before seeing system outputs.</p>
+<p>Table 3. Proposed evaluation conditions</p>
+<div class="report-table-scroll" role="region" aria-label="Prospective evaluation conditions table" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Condition</th>
+<th scope="col">Input and mechanism</th>
+<th scope="col">Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D</td>
+<td>Deterministic records, scenarios, and baseline plan</td>
+<td>Non-generative reference for availability and usefulness</td>
+</tr>
+<tr>
+<td>L0</td>
+<td>Address, objective, and ordinary prompt</td>
+<td>Descriptive ungrounded-model comparison</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>Frozen packet and reasoning prompt without post-generation gates</td>
+<td>Evidence-access comparison</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Same frozen packet and prompt with deterministic validation</td>
+<td>Paired estimate of structural gates</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Same packet and validator plus finding auditor</td>
+<td>Paired estimate of the additional auditor</td>
+</tr>
+</tbody></table></div>
+<p>L1–L3 must use the same underlying packet bytes, reasoner, generation settings, and request limits. L2 can validate a retained L1 candidate, and L3 can audit that same validated candidate, avoiding differences caused only by a newly sampled generation. Report both candidate-level effects and separately repeated full-pipeline effects. L0 has less information and is not an isolated ablation of any one mechanism. The ordinance reader is evaluated separately against frozen documents and annotated quotations; adding new documents only to L3 would mix retrieval benefit with audit benefit.</p>
+<p>The initial plan uses three reasoner replicates for L0–L3, retaining seed information when the provider supports it and recording when it does not. D is produced once per site. That design yields 624 held-out briefs: 48 deterministic briefs plus 48 × 4 × 3 model-condition briefs. Replicates are not independent sites. Model snapshots, actual returned identifiers, prompts, packet hashes, generation parameters, timestamps, token usage, failure reasons, and cost-estimation basis must accompany every attempted run. Provider spend and source-access permissions require approval before execution.</p>
+<h3 id="5-4-human-adjudication-and-uncertainty">5.4 Human adjudication and uncertainty</h3>
+<p>Two domain-informed reviewers independently segment all factual output fields into atomic claims and label each against the frozen sources. They should be unaware of the named condition where practical; standardized rendering and randomized output order reduce, but cannot eliminate, unblinding from abstention language or citation structure. Relevant experience and conflicts must be disclosed. Disagreements are adjudicated by a third reviewer or a documented consensus procedure fixed in advance. Report pre-adjudication agreement and the distribution of disagreements; consensus does not prove truth.</p>
+<p>The support labels are supported, contradicted, not established by the available evidence, and not assessable. A separate label records whether the claim is material to site identity, entitlement, hazard, capacity, cost, income, or a decision-critical unknown. Claims about source facts are scored separately from explicitly conditional scenario calculations and proposed actions. A true assertion from outside the approved packet may be externally correct while still violating the evidence-bound task. Unsupported and externally false must not be treated as synonyms.</p>
+<p>An automatic model judge may assist in proposing claim boundaries or routing review. It must not serve as the sole reference assessor for the system’s own auditor. Reviewers verify segmentation and all final labels. Where uncertainty remains because sources are inaccessible, inconsistent, or ambiguous, retain it and report a not-assessable category.</p>
+<h3 id="5-5-outcomes-and-denominators">5.5 Outcomes and denominators</h3>
+<p>The co-primary outcomes are unsupported factual-claim rate and supported answerable coverage. For each site, unsupported rate is the number of emitted factual claims labeled contradicted or not established divided by the number with an assessable support label. If no assessable claim is emitted, the rate is undefined, not zero. Report such sites separately. Supported coverage is the number of predeclared answerable factual obligations correctly satisfied divided by all answerable obligations. A system that withholds every answer therefore receives no supported coverage.</p>
+<p>Secondary outcomes include citation identifier validity, citation entailment, citation completeness, material unsupported-claim rate, scope errors, temporal overstatement, correct missing-value propagation, appropriate and unnecessary abstention, and explicit provider-failure disclosure. Citation entailment is assessed per claim–citation relation; completeness asks whether each factual claim has adequate support, including prose outside the supported-findings list. Numeric agreement is reported only as a diagnostic alongside unit and scope correctness. Where a denominator is empty, report not applicable rather than a perfect score.</p>
+<p>Investigation-plan usefulness is rated separately: does the proposed action identify the unresolved question, a plausible source or professional, the verification method, and the consequence of resolving it? Reviewers use a prereleased rubric and provide reasons for high-impact disagreements. Do not combine this judgment with factuality into one unvalidated trust score. Runtime reporting includes attempted and completed runs, median and upper-tail latency, retries, token usage, estimated provider cost, and failure categories. A list-price cost estimate is not an invoice.</p>
+<h3 id="5-6-analysis-and-failure-accounting">5.6 Analysis and failure accounting</h3>
+<p>The primary analysis reports per-site paired changes from L1 to L2 and L2 to L3, with site-macro averages and the underlying numerators and denominators. A paired cluster bootstrap resamples whole sites within the fixed strata, carrying all replicates and conditions together. Any intervals describe uncertainty conditional on this challenge sample; four held-out jurisdictions do not justify broad geographic generalization. Per-jurisdiction and per-condition distributions, sensitivity to disputed labels, and worst observed material errors should accompany aggregate results. A larger confirmatory study needs a prospective sample-size calculation using pilot variability and an operationally meaningful target difference.</p>
+<p>Every planned attempt remains in the operational denominator, including unavailable providers, malformed outputs, empty answers, and exhausted budgets. Quality among completed runs and end-to-end supported coverage must both be reported. Aborted batches remain partial; missing observations are not silently excluded, set to zero error, or replaced after inspecting outcomes. Version changes after the test freeze require a new versioned analysis. The experiment ends after the prespecified run matrix or an approved cost or safety stop, with the actual stopping reason retained.</p>
+<h2 id="6-reproducibility-and-governance">6 Reproducibility and governance</h2>
+<p>The present reproducibility boundary is the public repository and its documented offline commands, npm ci, npm test, and npm run eval, with Node 24 [1]. The exact commit should be checked out before reproduction. A future release should archive source, lockfile, runtime and operating-system details, raw test logs, evaluation manifest, prompts, permissible source snapshots, reference labels, adjudication instructions, and analysis code under stable identifiers. Separate implementation tests, scripted evaluations, live operational receipts, and human-scored outcomes in filenames and documentation.</p>
+<p>The prospective protocol in Section 5 is not yet a fully implemented, public research harness. Public availability of a product evaluation script should not be described as full reproduction of that proposed study. Frozen replay and live refresh answer different questions: replay isolates generation behavior, while refresh examines current retrieval and drift. Both should preserve dates and source versions instead of presenting a successful replay as proof of present-day accuracy.</p>
+<p>No human-participant study, institutional ethics determination, or licensed professional ground truth is claimed in this manuscript. If a later study measures professionals’ decisions, behavior, or time, its consent, privacy, and institutional or independent ethics requirements must be determined before recruitment. Site records can contain personal information even when publicly accessible. Release only the minimum permitted information needed for reproducibility, and do not expose private prompts, credentials, resident details, or proprietary client files. The intended use remains research support with human verification, not automated entitlement, lending, tenant selection, investment, or engineering decisions.</p>
+<h2 id="7-limitations-and-conclusion">7 Limitations and conclusion</h2>
+<p>The available evidence is a source-code inspection and a repository-authored scripted report. It does not demonstrate improved model accuracy, robust generalization, reduced analyst workload, or better development decisions. Source selection, licensing, availability, geocoding, parcel coverage, missing effective dates, summary truncation, numerical heuristics, mixed-scope sentences, and shared-model auditor failures can all limit the system. Displayed warnings may be overlooked. Excessive abstention can make an apparently cautious system unhelpful, while a useful investigation plan may still miss the most important issue.</p>
+<p>Cividian’s public edition provides a concrete implementation in which source records, assumptions, calculations, model text, and investigation tasks can be inspected separately. Its scientific value at this stage is the inspectable design and the opportunity to test specific mechanisms under controlled evidence conditions. The proposed evaluation makes the principal claim falsifiable: any reduction in unsupported content must be assessed together with supported coverage, abstention behavior, and operational failure. Empirical validation and independent replication remain necessary before stronger reliability or decision-benefit claims are warranted.</p>
+<h2 id="author-declarations">Author declarations</h2>
+<p>Author and contributions: Owen Crabbe is the sole human author and contributor, assisted by AI. Correspondence: owencrabbe@owencrabbe.com.</p>
+<p>Competing interests and funding: Owen Crabbe develops Cividian and has an interest in its commercialization. The work was self-funded except for provider credits from Nebius. No other external funding, sponsorship, or free services were reported.</p>
+<p>AI assistance: OpenAI-powered assistance was used to research public sources, draft text, develop the proposed protocol, and prepare the manuscript. AI assistance was also used in the underlying software development. AI tools are not authors. This disclosure does not assert independent technical review or independent reproduction of the reported software checks.</p>
+<p>Data and code availability: The cited public edition is available under Apache-2.0 with third-party notices. This manuscript reports no new live evaluation dataset. The proprietary core is excluded. The proposed study, reference labels, and analysis artifacts have not been executed or released as a validated benchmark.</p>
+<h2 id="references">References</h2>
+<p>[1] Crabbe, O. (2026). Cividian Site Diligence Agent. Public research software, version 0.5.0, commit 7956c302e55721489e35bcee8c9dbdb0d9471077. <a href="https://github.com/owencrabbe/cividian-site-diligence-agent/tree/7956c302e55721489e35bcee8c9dbdb0d9471077">Pinned repository</a>. Source descriptions in README.md, docs/hackathon/ARCHITECTURE.md, and lib/diligence. Accessed 1 October 2026.</p>
+<p>[2] Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Küttler, H., Lewis, M., Yih, W.-t., Rocktäschel, T., Riedel, S., and Kiela, D. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. Advances in Neural Information Processing Systems, 33. <a href="https://papers.nips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html">Proceedings</a>.</p>
+<p>[3] Gao, T., Yen, H., Yu, J., and Chen, D. (2023). Enabling Large Language Models to Generate Text with Citations. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, 6465–6488. <a href="https://doi.org/10.18653/v1/2023.emnlp-main.398">doi:10.18653/v1/2023.emnlp-main.398</a>.</p>
+<p>[4] Min, S., Krishna, K., Lyu, X., Lewis, M., Yih, W.-t., Koh, P., Iyyer, M., Zettlemoyer, L., and Hajishirzi, H. (2023). FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, 12076–12100. <a href="https://doi.org/10.18653/v1/2023.emnlp-main.741">doi:10.18653/v1/2023.emnlp-main.741</a>.</p>
+<p>[5] Geifman, Y., and El-Yaniv, R. (2017). Selective Classification for Deep Neural Networks. Advances in Neural Information Processing Systems, 30. <a href="https://proceedings.neurips.cc/paper/2017/hash/4a8423d5e91fda00bb7e46540e2b0cf1-Abstract.html">Proceedings</a>.</p>
+<p>[6] Sun, X., Xie, J., Chen, Z., Liu, Q., Wu, S., Chen, Y., Song, B., Wang, Z., Wang, W., and Wang, L. (2025). Divide-Then-Align: Honest Alignment based on the Knowledge Boundary of RAG. Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics, Volume 1, 11461–11480. <a href="https://doi.org/10.18653/v1/2025.acl-long.561">doi:10.18653/v1/2025.acl-long.561</a>.</p>
+<p>[7] Farquhar, S., Kossen, J., Kuhn, L., and Gal, Y. (2024). Detecting hallucinations in large language models using semantic entropy. Nature, 630, 625–630. <a href="https://doi.org/10.1038/s41586-024-07421-0">doi:10.1038/s41586-024-07421-0</a>.</p>
+<p>[8] Moreau, L., and Missier, P. (Eds.) (2013). PROV-DM: The PROV Data Model. W3C Recommendation, 30 April 2013. <a href="https://www.w3.org/TR/2013/REC-prov-dm-20130430/">Versioned specification</a>.</p>
+<p>[9] Wilkinson, M. D., et al. (2016). The FAIR Guiding Principles for scientific data management and stewardship. Scientific Data, 3, 160018. <a href="https://doi.org/10.1038/sdata.2016.18">doi:10.1038/sdata.2016.18</a>.</p>
+<p>[10] Shanivendra, A. C. (2026). Citation-Enforced RAG for Fiscal Document Intelligence: Cited, Explainable Knowledge Retrieval in Tax Compliance. arXiv:2603.14170v1. Preprint; peer-review status not established here. <a href="https://arxiv.org/abs/2603.14170v1">Versioned preprint</a>.</p>
+<p>[11] Barua, S., Hong, G., Dursunoglu, H., Rodgers, C., and Fong, A. (2026). CiteGuard-RAG: A Validation-Centered AI System for Evidence-Grounded Question Answering. arXiv:2609.15830v1. Preprint; a submission claim is not acceptance. <a href="https://arxiv.org/abs/2609.15830v1">Versioned preprint</a>.</p>
+<p>[12] Crabbe, O. (2026). Site Diligence Agent evaluation results. Generated scripted software report, 29 September 2026, in the public repository at commit 7956c302e55721489e35bcee8c9dbdb0d9471077. <a href="https://github.com/owencrabbe/cividian-site-diligence-agent/blob/7956c302e55721489e35bcee8c9dbdb0d9471077/docs/hackathon/EVAL_RESULTS.md">Pinned evaluation report</a>. Accessed 1 October 2026.</p>
