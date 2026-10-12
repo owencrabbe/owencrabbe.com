@@ -1,6 +1,9 @@
 import { readFile, stat, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { methodsReport } from '../src/reports.mjs';
+import { profile, research } from '../src/content.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -48,6 +51,40 @@ for (const [name, html] of documents) {
   }
 }
 
+// Publication status and preserved artifacts. These narrow assertions replace the earlier blanket resume-word exclusion:
+// background facts stay limited to the approved sentence, status labels stay truthful, and the published report stays
+// byte-identical. Change a pinned hash only when the report itself is intentionally republished.
+const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
+const preserved = {
+  'public/reports/cividian-evidence-bounded-methods.docx': '05b7fe9623ae09b5dedad1d754cbabba908052aaf50d6d2db19838857842b4d9',
+  'src/cividian-methods-report.html': '905543b66da536e2f7bcc1d22cc3de1db09b8c7818640793aa4cff799c1ee383',
+  'src/reports.mjs': '9cdfe3cba3b0ce40c20d576f605ef067b56d41111f6898e0c41584ee342135c6',
+};
+for (const [file, expected] of Object.entries(preserved)) if (sha256(await readFile(path.join(root, file))) !== expected) problems.push(`${file}: published report artifact changed`);
+try { if (sha256(await readFile(path.join(dist, methodsReport.download))) !== preserved['public/reports/cividian-evidence-bounded-methods.docx']) problems.push('Published report download differs from the preserved DOCX'); } catch { problems.push('Missing published report download'); }
+const page = route => documents.get(path.join(dist, route, 'index.html')) ?? '';
+const text = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+if (!page(`publications/${methodsReport.slug}`).includes(methodsReport.body)) problems.push('Report page does not contain the published report text');
+const home = text(page(''));
+for (const statement of [profile.intro, profile.location, profile.background, 'a reviewed evaluation of 16 scripted cases', 'not a live factual-accuracy or investment-outcome benchmark', 'Software tests do not establish reasoning quality, adherence, or health outcomes']) if (!home.includes(statement.replace(/\s+/g, ' '))) problems.push(`index.html: missing status statement "${statement}"`);
+const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+if (!new RegExp(`(?:\\.\\s|<p>)${escapeRegExp(profile.background)}</p>`).test(page(''))) problems.push('index.html: background must stay one standalone approved sentence');
+for (const route of ['', 'research']) if ((page(route).match(/class="research-state">Proposed</g) ?? []).length !== research.length) problems.push(`${route || 'home'}: every proposed study must stay labeled Proposed`);
+for (const route of ['work/cividian', 'work/mindforge']) if (!/class="case-record"[\s\S]*<dt>Not established<\/dt>/.test(page(route))) problems.push(`${route}: missing case record limits`);
+const unsupported = [
+  [/\b(?:CENTURY\s*21|Bradley Realty)\b/i, 'employer mention outside the approved background sentence'],
+  [/\bBall State\b/i, 'Ball State claim'],
+  [/\b(?:own|owns|owner|ownership|co-?owner|founder|founded)\b[^.]{0,80}\bMidwest\b|\bMidwest\b[^.]{0,80}\b(?:owner|ownership|owns|founder)\b/i, 'Midwest ownership claim'],
+  [/\b(?:licensed|certified) (?:real estate )?(?:broker|agent|salesperson)\b|\byears of experience\b|\b(?:closed|sold|brokered) (?:over )?\$/i, 'credential, tenure, or deal-total claim'],
+  [/\b(?:Hewed|native app)\b[^.]{0,80}\b(?:finished|completed?|launched|shipped|released)\b/i, 'finished native app claim'],
+  [/\b(?:trusted|used|adopted|endorsed) by\b|\btestimonials?\b|\bcustomers (?:use|rely)\b/i, 'adoption or endorsement claim'],
+];
+for (const [name, html] of documents) {
+  const visible = text(html.replace(methodsReport.body, '').replaceAll(profile.background, ''));
+  for (const [pattern, label] of unsupported) if (pattern.test(visible)) problems.push(`${path.relative(dist, name)}: unsupported ${label}`);
+  if ((visible.match(/peer[- ]review/gi) ?? []).length !== (visible.match(/\b(?:not|no) (?:a )?peer[- ]review/gi) ?? []).length) problems.push(`${path.relative(dist, name)}: peer review mentioned without a not-peer-reviewed status`);
+}
+
 const css = await readFile(path.join(dist, 'assets/styles.css'), 'utf8');
 if (!css.includes(':focus-visible') || !css.includes('prefers-reduced-motion') || !css.includes('@media print')) problems.push('Missing accessible focus, reduced motion, or print styles');
 if (css.length > 50000) problems.push('CSS exceeds the 50 KB uncompressed budget');
@@ -57,5 +94,5 @@ if (problems.length) {
   process.exit(1);
 }
 const total = (await Promise.all(files.map(async name => (await stat(name)).size))).reduce((a, b) => a + b, 0);
-console.log(`Checked ${htmlFiles.length} pages: local links and anchors, metadata, landmarks, unique ids, accessible asset requirements.`);
+console.log(`Checked ${htmlFiles.length} pages: local links and anchors, metadata, landmarks, unique ids, accessible asset requirements, publication status, preserved report.`);
 console.log(`Total generated site: ${(total / 1024).toFixed(1)} KB uncompressed. CSS: ${(css.length / 1024).toFixed(1)} KB. No runtime dependencies.`);

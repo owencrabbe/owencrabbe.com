@@ -34,11 +34,29 @@ export const site = {
   phronemeSkill: `${phronemePublicSource}/skills/fitness-evidence/SKILL.md`,
 };
 
+// Approved public profile facts. Do not add dates, titles, deal totals, ownership, or credentials.
+export const profile = {
+  intro: 'I build tools that turn complex information into source-linked briefs, explicit scenarios, and practical next steps. My work spans real estate diligence, reusable reasoning methods, and evidence-aware fitness planning.',
+  location: 'Anderson, Indiana · Open to relocation.',
+  background: 'My background includes commercial real estate work with CENTURY\u00a021 Bradley Realty, Inc.',
+};
+
+export const cividianRecord = [
+  ['Status', 'Public, source-linked implementation and demo, published under Apache-2.0.'],
+  ['Evidence', `A <a href="${site.evaluation}">reviewed evaluation report</a> of 16 scripted pipeline and validator cases at a pinned revision.`],
+  ['Not established', 'Live factual accuracy, investment outcomes, or zoning applicability. Zoning stays unverified until a planning office confirms it.'],
+];
+
 export const phronemeProject = {
   title: 'Phroneme',
   description: 'A browser-local planning and reflection product, seven reusable Claude skills, and an open-source evidence contract with explicit limits.',
   eyebrow: 'Case study / Working product · Open-source evidence contract',
-  intro: 'From reusable reasoning methods to a working activity journal—with inspectable evidence checks and a clear boundary around what the software can establish.',
+  intro: 'From reusable reasoning methods to a working activity journal, with inspectable evidence checks and a clear boundary around what the software can establish.',
+  record: [
+    ['Status', 'A working browser-local journal and the MIT-licensed MindForge-Skills toolkit: seven reusable skills and an evidence contract.'],
+    ['Evidence', 'A reviewed evidence contract with <a href="#evaluation">54 passing software tests</a> at a pinned revision.'],
+    ['Not established', 'Reasoning quality, adherence, or health outcomes. A controlled model comparison has not been run.'],
+  ],
   summary: 'A browser-local activity journal, seven reusable Claude skills, and a tested evidence contract. Source relationships, review dates, and uncertainty stay visible.',
   body: `
   <section id="product"><h2>From a method to a working product.</h2>

@@ -60,8 +60,7 @@ em { font-weight: inherit; }
 .hero h1 em { color: var(--blue); }
 .hero-description { max-width: 455px; color: var(--muted); font-size: 17px; line-height: 1.7; margin-bottom: 28px; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 29px; }
-.hero-disciplines { font: 10px/1.7 var(--mono); letter-spacing: .015em; color: var(--muted); margin-top: 30px; margin-bottom: 0; }
-.hero-disciplines span { margin: 0 8px; color: #a1a69f; }
+.hero-location { font: 12px/1.7 var(--mono); letter-spacing: .015em; color: var(--muted); margin-top: 30px; margin-bottom: 0; }
 .hero-bottom { display: flex; align-items: center; justify-content: space-between; font: 10px/1.6 var(--mono); letter-spacing: .015em; color: var(--muted); padding: 19px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .scroll-hint { font-size: 20px; color: var(--blue); }
 
@@ -259,8 +258,7 @@ em { font-weight: inherit; }
   .hero-actions { display: block; }
   .hero-actions .button { margin-bottom: 17px; }
   .hero-actions .text-link { display: flex; }
-  .hero-disciplines { font-size: 8px; max-width: 245px; }
-  .hero-disciplines span { margin: 0 3px; }
+  .hero-location { font-size: 11px; }
   .section-heading h2 { font-size: 35px; }
   .section-aside { font-size: 10px; }
   .featured-project { grid-template-columns: 1fr 1fr; }
@@ -319,8 +317,7 @@ em { font-weight: inherit; }
   .hero-actions { display: flex; gap: 24px; }
   .hero-actions .button { margin-bottom: 0; min-height: 49px; font-size: 12px; gap: 23px; }
   .hero-actions .text-link { font-size: 11px; gap: 11px; }
-  .hero-disciplines { font-size: 8px; max-width: none; margin-top: 26px; }
-  .hero-disciplines span { margin: 0 6px; }
+  .hero-location { margin-top: 26px; }
   .hero-bottom { font-size: 8px; padding-block: 16px; }
   .hero-bottom > span:nth-child(2) { display: none; }
   .work-section { padding-top: 66px; }
@@ -537,7 +534,7 @@ em { font-weight: inherit; }
   .hero-description { font-size: 16px; line-height: 1.7; margin-bottom: 24px; }
   .hero-actions { gap: 12px 24px; }
   .hero-actions .button, .hero-actions .text-link { font-size: 14px; min-height: 48px; }
-  .hero-disciplines { font-size: 10px; margin-top: 22px; }
+  .hero-location { font-size: 12px; margin-top: 22px; }
   .work-index { margin-top: 30px; padding: 24px; }
   .work-index h2 { font-size: 31px; margin-bottom: 20px; }
   .record-heading .eyebrow { margin-bottom: 18px; }
@@ -597,7 +594,7 @@ em { font-weight: inherit; }
 @media print {
   body { background: white; font-size: 11pt; color: black; }
   .shell { width: 100%; }
-  .skip-link, .site-header, .article-sidebar, .back-link, .article-header-links, .article-end, .hero-actions, .hero-disciplines, .hero-bottom, .project-visual { display: none; }
+  .skip-link, .site-header, .article-sidebar, .back-link, .article-header-links, .article-end, .hero-actions, .hero-bottom, .project-visual { display: none; }
   .hero, .featured-project, .research-inner, .about-section, .article-layout, .research-page-layout { display: block; }
   .hero, .work-section, .writing-section, .research-inner, .about-section, .article-heading, .article-layout { padding: 0 0 24pt; }
   .hero h1, .article-heading h1 { font-size: 42pt; }
@@ -727,3 +724,23 @@ em { font-weight: inherit; }
   .project-editorial img { aspect-ratio: 1920 / 1088; }
 }
 @media print { .hero-editorial, .project-editorial, .record-band { display: none; } .phroneme-project { display: block; background: white; } }
+
+/* Descriptive headline and the case-study record of status, evidence, and limits. */
+.hero h1 { font-size: clamp(48px, 5vw, 72px); line-height: 1.04; text-wrap: balance; }
+.case-record { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; margin: 34px 0 0; padding-top: 22px; border-top: 1px solid var(--line); }
+.case-record dt { font: 10px/1.5 var(--mono); letter-spacing: .105em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.case-record dd { margin: 0; font-size: 14px; line-height: 1.65; }
+.case-record a { color: var(--blue); }
+@media (max-width: 1000px) { .hero h1 { font-size: clamp(42px, 5.6vw, 56px); } }
+@media (max-width: 700px) {
+  .hero h1 { font-size: clamp(40px, 10.6vw, 60px); }
+  .case-record { grid-template-columns: 1fr; gap: 18px; margin-top: 28px; }
+  .case-record dd { font-size: 15px; }
+}
+@media print {
+  .hero h1 { font-size: 28pt; }
+  .hero-location { color: #222; font-size: 10pt; margin-top: 10pt; }
+  .case-record { gap: 0 12pt; margin-top: 14pt; padding-top: 10pt; break-inside: avoid; }
+  .case-record dd { font-size: 10pt; color: black; }
+  .case-record a { color: black; text-decoration: underline; }
+}

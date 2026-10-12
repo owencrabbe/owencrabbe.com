@@ -36,12 +36,12 @@ DNS hosting and domain registration are separate from this site. Pointing a webs
 
 | File | Purpose |
 | --- | --- |
-| `src/content.mjs` | Public facts, pinned evidence links, case study, engineering notes, research directions, and origin validation |
+| `src/content.mjs` | Approved profile facts, pinned evidence links, case-study records, engineering notes, research directions, and origin validation |
 | `src/templates.mjs` | Shared layout, homepage, project pages, notebook pages, research page, and 404 |
 | `public/styles.css` | Responsive typography, colors, components, reduced-motion and print styles |
 | `public/main.js` | Progressively enhanced mobile navigation |
 | `scripts/build.mjs` | Clean static build, sitemap, robots, and RSS |
-| `scripts/check.mjs` | Local reference/anchor checks, document metadata, unique IDs, landmarks, and asset budget |
+| `scripts/check.mjs` | Local reference/anchor checks, document metadata, unique IDs, landmarks, publication status, preserved report hashes, and asset budget |
 | `scripts/serve.mjs` | Dependency-free local preview |
 
 Add a route in `src/templates.mjs`, then build and check. Sitemap entries are generated from the page list. Add engineering notes to `notes` in `src/content.mjs` to include them in the RSS feed. Update the content revision date in `scripts/build.mjs` when publishing a substantive change.
@@ -56,12 +56,16 @@ The site uses public evidence for the Cividian Site Diligence Agent and Phroneme
 - Phroneme's journal and evidence contract have software tests; controlled reasoning improvements and health outcomes have not been established.
 - Proposed research remains labeled proposed until datasets, methods, and results are actually published.
 - AI-assisted workflows are disclosed in the About section.
-- No invented employment, degree, personal implementation breakdown, award, adoption metric, or performance score is included.
+- Background is limited to one approved sentence: commercial real estate work with CENTURY 21 Bradley Realty, Inc. Do not add employment dates, titles, ownership, deal totals, licenses, or credentials.
+- No invented employment, degree, personal implementation breakdown, award, adoption metric, endorsement, or performance score is included. Unfinished apps are not described as finished.
+- Planned drafts are not listed until they are published.
 - Private repository details, customer information, account state, and operational audits belong outside the public site.
 
 ## Verification
 
 `npm run check` validates local links and anchors across every generated page, a single `h1`, language and main landmarks, metadata, unique IDs, accessible image requirements, reduced-motion/focus/print CSS, and required static assets. It also enforces a 50 KB uncompressed CSS budget.
+
+The check also asserts publication status and preserved artifacts. The October 2 methods report DOCX, report HTML, and report metadata must match pinned SHA-256 hashes, and the built download must match the DOCX byte for byte. The homepage must keep its approved profile facts and evidence limits; each case study must keep its status, evidence, and not-established record; proposed studies must stay labeled Proposed; peer review may only appear as a not-peer-reviewed status. Unsupported employer embellishment, credentials, deal totals, Ball State or Midwest ownership claims, finished-app claims, and adoption or endorsement claims fail the check. Update a pinned hash only when the report is intentionally republished.
 
 The mobile navigation uses a native button with visible keyboard focus and ARIA state. Navigation remains visible when JavaScript is unavailable, and in-page menu links move focus to their destination. Content remains readable without JavaScript. Production headers in `vercel.json` include a restrictive content security policy and disable camera, microphone, and geolocation permissions. No third-party fonts, analytics, forms, external JavaScript, or runtime dependencies are required.
 
