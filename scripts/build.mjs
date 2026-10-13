@@ -7,7 +7,9 @@ import { site, notes } from '../src/content.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'dist');
-const updated = '2026-09-30';
+const updated = '2026-10-12'; // Homepage and case studies.
+const notesUpdated = '2026-10-01'; // Engineering notes and research agenda.
+const lastmod = pathname => pathname.startsWith('/publications/') ? methodsReport.published : pathname === '/' || pathname.startsWith('/work/') ? updated : notesUpdated;
 const xml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&apos;'}[c]));
 
 await rm(output, { recursive: true, force: true });
@@ -23,11 +25,12 @@ await Promise.all([
   copyFile(path.join(root, 'public/styles.css'), path.join(output, 'assets/styles.css')),
   copyFile(path.join(root, 'public/main.js'), path.join(output, 'assets/main.js')),
   copyFile(path.join(root, 'public/favicon.svg'), path.join(output, 'favicon.svg')),
+  cp(path.join(root, 'public/images'), path.join(output, 'assets'), { recursive: true }),
 ]);
 
 await cp(path.join(root, 'public/reports'), path.join(output, 'reports'), { recursive: true });
 
-const urls = pages.filter(item => item.path !== '/404/').map(item => `  <url><loc>${xml(site.origin + item.path)}</loc><lastmod>${item.path === '/' || item.path.startsWith('/publications/') ? methodsReport.published : updated}</lastmod></url>`).join('\n');
+const urls = pages.filter(item => item.path !== '/404/').map(item => `  <url><loc>${xml(site.origin + item.path)}</loc><lastmod>${lastmod(item.path)}</lastmod></url>`).join('\n');
 await writeFile(path.join(output, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 await writeFile(path.join(output, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`);
 const reportFeedItem = `<item><title>${xml(methodsReport.title)}</title><link>${xml(site.origin + '/publications/' + methodsReport.slug + '/')}</link><guid isPermaLink="true">${xml(site.origin + '/publications/' + methodsReport.slug + '/')}</guid><pubDate>Fri, 02 Oct 2026 00:00:00 GMT</pubDate><description>${xml(methodsReport.description + ' Self-published technical report. Not peer reviewed.')}</description></item>`;
