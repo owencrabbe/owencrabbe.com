@@ -62,13 +62,16 @@ const preserved = {
 };
 for (const [file, expected] of Object.entries(preserved)) if (sha256(await readFile(path.join(root, file))) !== expected) problems.push(`${file}: published report artifact changed`);
 try { if (sha256(await readFile(path.join(dist, methodsReport.download))) !== preserved['public/reports/cividian-evidence-bounded-methods.docx']) problems.push('Published report download differs from the preserved DOCX'); } catch { problems.push('Missing published report download'); }
+// Pinned here, independent of src/content.mjs, so editing the profile cannot widen what the claim scan ignores.
+const approvedBackground = 'My background includes commercial real estate work with CENTURY\u00a021 Bradley Realty, Inc.';
+if (profile.background !== approvedBackground) problems.push('src/content.mjs: profile.background differs from the approved background sentence');
 const page = route => documents.get(path.join(dist, route, 'index.html')) ?? '';
 const text = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 if (!page(`publications/${methodsReport.slug}`).includes(methodsReport.body)) problems.push('Report page does not contain the published report text');
 const home = text(page(''));
-for (const statement of [profile.intro, profile.location, profile.background, 'a reviewed evaluation of 16 scripted cases', 'not a live factual-accuracy or investment-outcome benchmark', 'Software tests do not establish reasoning quality, adherence, or health outcomes']) if (!home.includes(statement.replace(/\s+/g, ' '))) problems.push(`index.html: missing status statement "${statement}"`);
+for (const statement of [profile.intro, profile.location, approvedBackground, 'a reviewed evaluation of 16 scripted cases', 'not a live factual-accuracy or investment-outcome benchmark', 'Software tests do not establish reasoning quality, adherence, or health outcomes']) if (!home.includes(statement.replace(/\s+/g, ' '))) problems.push(`index.html: missing status statement "${statement}"`);
 const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-if (!new RegExp(`(?:\\.\\s|<p>)${escapeRegExp(profile.background)}</p>`).test(page(''))) problems.push('index.html: background must stay one standalone approved sentence');
+if (!new RegExp(`(?:\\.\\s|<p>)${escapeRegExp(approvedBackground)}</p>`).test(page(''))) problems.push('index.html: background must stay one standalone approved sentence');
 for (const route of ['', 'research']) if ((page(route).match(/class="research-state">Proposed</g) ?? []).length !== research.length) problems.push(`${route || 'home'}: every proposed study must stay labeled Proposed`);
 for (const route of ['work/cividian', 'work/mindforge']) if (!/class="case-record"[\s\S]*<dt>Not established<\/dt>/.test(page(route))) problems.push(`${route}: missing case record limits`);
 const unsupported = [
@@ -80,7 +83,7 @@ const unsupported = [
   [/\b(?:trusted|used|adopted|endorsed) by\b|\btestimonials?\b|\bcustomers (?:use|rely)\b/i, 'adoption or endorsement claim'],
 ];
 for (const [name, html] of documents) {
-  const visible = text(html.replace(methodsReport.body, '').replaceAll(profile.background, ''));
+  const visible = text(html.replace(methodsReport.body, '').replaceAll(approvedBackground, ''));
   for (const [pattern, label] of unsupported) if (pattern.test(visible)) problems.push(`${path.relative(dist, name)}: unsupported ${label}`);
   if ((visible.match(/peer[- ]review/gi) ?? []).length !== (visible.match(/\b(?:not|no) (?:a )?peer[- ]review/gi) ?? []).length) problems.push(`${path.relative(dist, name)}: peer review mentioned without a not-peer-reviewed status`);
 }

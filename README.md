@@ -9,6 +9,7 @@ Use Node.js 24. No dependency installation is needed.
 ```sh
 npm run build
 npm run check
+npm test
 npm start
 ```
 
@@ -42,6 +43,7 @@ DNS hosting and domain registration are separate from this site. Pointing a webs
 | `public/main.js` | Progressively enhanced mobile navigation |
 | `scripts/build.mjs` | Clean static build, sitemap, robots, and RSS |
 | `scripts/check.mjs` | Local reference/anchor checks, document metadata, unique IDs, landmarks, publication status, preserved report hashes, and asset budget |
+| `scripts/test-check.mjs` | Mutation tests for the check: edits `src/content.mjs` in a temporary copy, then rebuilds and checks |
 | `scripts/serve.mjs` | Dependency-free local preview |
 
 Add a route in `src/templates.mjs`, then build and check. Sitemap entries are generated from the page list. Add engineering notes to `notes` in `src/content.mjs` to include them in the RSS feed. Update the content revision date in `scripts/build.mjs` when publishing a substantive change.
@@ -65,7 +67,9 @@ The site uses public evidence for the Cividian Site Diligence Agent and Phroneme
 
 `npm run check` validates local links and anchors across every generated page, a single `h1`, language and main landmarks, metadata, unique IDs, accessible image requirements, reduced-motion/focus/print CSS, and required static assets. It also enforces a 50 KB uncompressed CSS budget.
 
-The check also asserts publication status and preserved artifacts. The October 2 methods report DOCX, report HTML, and report metadata must match pinned SHA-256 hashes, and the built download must match the DOCX byte for byte. The homepage must keep its approved profile facts and evidence limits; each case study must keep its status, evidence, and not-established record; proposed studies must stay labeled Proposed; peer review may only appear as a not-peer-reviewed status. Unsupported employer embellishment, credentials, deal totals, Ball State or Midwest ownership claims, finished-app claims, and adoption or endorsement claims fail the check. Update a pinned hash only when the report is intentionally republished.
+The check also asserts publication status and preserved artifacts. The October 2 methods report DOCX, report HTML, and report metadata must match pinned SHA-256 hashes, and the built download must match the DOCX byte for byte. The homepage must keep its approved profile facts and evidence limits; each case study must keep its status, evidence, and not-established record; proposed studies must stay labeled Proposed; peer review may only appear as a not-peer-reviewed status. Unsupported employer embellishment, credentials, deal totals, Ball State or Midwest ownership claims, finished-app claims, and adoption or endorsement claims fail the check. Update a pinned hash only when the report is intentionally republished. The approved background sentence is pinned in `scripts/check.mjs` independently of `src/content.mjs`; only that fixed sentence is excluded from the claim scan.
+
+`npm test` runs the check's mutation cases. Each case edits `src/content.mjs` in a temporary copy (appended unsupported claims and harmless controls), rebuilds, and expects the check to fail with the named problem or pass. The working checkout is not modified.
 
 The mobile navigation uses a native button with visible keyboard focus and ARIA state. Navigation remains visible when JavaScript is unavailable, and in-page menu links move focus to their destination. Content remains readable without JavaScript. Production headers in `vercel.json` include a restrictive content security policy and disable camera, microphone, and geolocation permissions. No third-party fonts, analytics, forms, external JavaScript, or runtime dependencies are required.
 
